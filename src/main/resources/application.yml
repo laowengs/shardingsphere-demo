@@ -1,0 +1,136 @@
+spring:
+  shardingsphere:
+    database:
+      name: demodb
+    mode:
+      type: Standalone # ????
+      repository:
+        type: File
+        props:
+          path: .\data # ?????????????
+      overwrite: true
+    datasource:
+      names: ds_0,ds_1,ds_2
+      ds_0:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.jdbc.Driver
+        url: jdbc:mysql://127.0.0.1:3306/demo_ds_0?serverTimezone=UTC&useSSL=false
+        username: demo
+        password: demo.1qaz
+        connectionTimeoutMilliseconds: 30000
+        idleTimeoutMilliseconds: 60000
+        maxLifetimeMilliseconds: 1800000
+        maxPoolSize: 50
+        minPoolSize: 1
+      ds_1:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.jdbc.Driver
+        url: jdbc:mysql://127.0.0.1:3306/demo_ds_1?serverTimezone=UTC&useSSL=false
+        username: demo
+        password: demo.1qaz
+        connectionTimeoutMilliseconds: 30000
+        idleTimeoutMilliseconds: 60000
+        maxLifetimeMilliseconds: 1800000
+        maxPoolSize: 50
+        minPoolSize: 1
+      ds_2:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.jdbc.Driver
+        url: jdbc:mysql://127.0.0.1:3306/demo_ds_2?serverTimezone=UTC&useSSL=false
+        username: demo
+        password: demo.1qaz
+        connectionTimeoutMilliseconds: 30000
+        idleTimeoutMilliseconds: 60000
+        maxLifetimeMilliseconds: 1800000
+        maxPoolSize: 50
+        minPoolSize: 1
+
+    rules:
+      sharding:
+        tables:
+          t_order:
+            actualDataNodes: ds_${0..1}.t_order_${0..1}
+            tableStrategy:
+              standard:
+                shardingColumn: order_id
+                shardingAlgorithmName: t_order_inline
+            keyGenerateStrategy:
+              column: id
+              keyGeneratorName: snowflake
+          t_order_record:
+            actualDataNodes: ds_0.t_order_record_${1..2},ds_1.t_order_record_${3..4}
+            databaseStrategy:
+              standard:
+                shardingColumn: order_id
+                shardingAlgorithmName: t_order_record_database_inline
+            tableStrategy:
+              standard:
+                shardingColumn: order_id
+                shardingAlgorithmName: t_order_record_inline
+            keyGenerateStrategy:
+              column: id
+              keyGeneratorName: snowflake
+          t_order_item:
+            actualDataNodes: ds_${0..1}.t_order_item_${0..1}
+            tableStrategy:
+              standard:
+                shardingColumn: order_id
+                shardingAlgorithmName: t_order_item_inline
+            keyGenerateStrategy:
+              column: order_item_id
+              keyGeneratorName: snowflake
+        binding-tables:
+          - t_order,t_order_item
+        default-database-strategy:
+          standard:
+            shardingColumn: user_id
+            shardingAlgorithmName: database_inline
+        default-table-strategy:
+          none:
+        sharding-algorithms:
+          database_inline:
+            type: INLINE
+            props:
+              algorithm-expression: ds_${user_id % 2}
+          t_order_inline:
+            type: INLINE
+            props:
+              algorithm-expression: t_order_${order_id % 2}
+          t_order_record_inline:
+            type: INLINE
+            props:
+              algorithm-expression: t_order_record_${order_id % 4}
+          t_order_record_database_inline:
+            type: INLINE
+            props:
+              algorithm-expression: ds_${order_id % 2}
+          t_order_item_inline:
+            type: INLINE
+            props:
+              algorithm-expression: t_order_item_${order_id % 2}
+
+        key-generators:
+          snowflake:
+            type: SNOWFLAKE
+
+        scaling-name: default_scaling
+        scaling:
+          default_scaling:
+            input:
+              worker-thread: 40
+              batch-size: 1000
+            output:
+              worker-thread: 40
+              batch-size: 1000
+            stream-channel:
+              type: MEMORY
+              props:
+                block-queue-size: 10000
+            completionDetector:
+              type: IDLE
+              props:
+                incremental-task-idle-seconds-threshold: 1800
+            dataConsistencyChecker:
+              type: DATA_MATCH
+              props:
+                chunk-size: 1000
