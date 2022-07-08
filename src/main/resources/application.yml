@@ -1,4 +1,6 @@
 spring:
+  jpa:
+    show-sql: true
   shardingsphere:
     database:
       name: demodb
@@ -134,3 +136,5 @@ spring:
               type: DATA_MATCH
               props:
                 chunk-size: 1000
+    props:
+      sql-show: true
