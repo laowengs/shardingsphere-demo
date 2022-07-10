@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
@@ -22,10 +23,21 @@ public class OrderRepositoryTest {
 
         IntStream.range(20, 41).forEach(i -> {
             OrderEntity order = new OrderEntity();
+            order.setOrderId(Math.abs(random.nextLong()));
             order.setUserId(Math.abs(random.nextLong()));
             order.setCreateTime(new Date());
             order.setUpdateTime(new Date());
             orderRepository.save(order);
         });
+    }
+
+    @Test
+    void selectAll() {
+        List<OrderEntity> all = orderRepository.findAll();
+        System.out.println(all);
+    }
+
+    @Test
+    void name() {
     }
 }

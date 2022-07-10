@@ -8,12 +8,10 @@ import java.util.Date;
 /**
  * order table
  *
- * @author lance
- * @date 2022/2/20 20:48
  */
 @Data
 @Entity
-@Table(name = "t_order")
+@Table(name = "t_order_item")
 public class OrderEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
