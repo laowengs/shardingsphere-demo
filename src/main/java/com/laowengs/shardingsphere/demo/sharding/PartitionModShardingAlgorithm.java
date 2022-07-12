@@ -1,5 +1,6 @@
 package com.laowengs.shardingsphere.demo.sharding;
 
+import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shardingsphere.sharding.api.sharding.standard.PreciseShardingValue;
 import org.apache.shardingsphere.sharding.api.sharding.standard.RangeShardingValue;
@@ -16,6 +17,7 @@ public class PartitionModShardingAlgorithm implements StandardShardingAlgorithm<
     public String doSharding(Collection<String> collection, PreciseShardingValue<Long> preciseShardingValue) {
         log.info("collection: {}",collection);
         log.info("preciseShardingValue: {}",preciseShardingValue);
+        log.info("dataNodeInfo: {}", JSON.toJSONString(preciseShardingValue.getDataNodeInfo()));
         List<String> collect = collection.stream().collect(Collectors.toList());
         return collect.get(0);
     }
