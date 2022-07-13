@@ -11,7 +11,7 @@ import java.util.Date;
  */
 @Data
 @Entity
-@Table(name = "t_order_item")
+@Table(name = "t_order")
 public class OrderEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

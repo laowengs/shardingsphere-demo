@@ -3,156 +3,85 @@ spring:
     show-sql: true
   shardingsphere:
     database:
-      name: demodb
-#    mode:
-#      type: Standalone
-#      repository:
-#        type: File
-#        props:
-#          path: .\data
-#      overwrite: true
+      name: order_db
     mode:
-      type: Cluster
+      type: Standalone
       repository:
-        type: ZooKeeper
+        type: File
         props:
-          namespace: governance_ds
-          server-lists: zookeeper371:2181
-          retryIntervalMilliseconds: 5000
-          timeToLiveSeconds: 60
-          maxRetries: 3
-          operationTimeoutMilliseconds: 5000
-      overwrite: false
+          path: .\data
+      overwrite: true
+#    mode:
+#      type: Cluster
+#      repository:
+#        type: ZooKeeper
+#        props:
+#          namespace: governance_ds
+#          server-lists: zookeeper371:2181
+#          retryIntervalMilliseconds: 5000
+#          timeToLiveSeconds: 60
+#          maxRetries: 3
+#          operationTimeoutMilliseconds: 5000
+#      overwrite: false
     datasource:
-      names: demo_ds_0,demo_ds_1,demo_ds_2
-      demo_ds_0:
-        type: com.zaxxer.hikari.HikariDataSource
-        driver-class-name: com.mysql.jdbc.Driver
-        url: jdbc:mysql://mysql57:13306/demo_ds_0?serverTimezone=UTC&useSSL=false
-        username: demo
+      names: order_db_01,order_db_02,order_db_03
+      order_db_01:
         password: demo.1qaz
-        connectionTimeoutMilliseconds: 30000
-        idleTimeoutMilliseconds: 60000
-        maxLifetimeMilliseconds: 1800000
-        maxPoolSize: 50
-        minPoolSize: 1
-      demo_ds_1:
         type: com.zaxxer.hikari.HikariDataSource
-        driver-class-name: com.mysql.jdbc.Driver
-        url: jdbc:mysql://mysql57:13306/demo_ds_1?serverTimezone=UTC&useSSL=false
+        url: jdbc:mysql://mysql57:13306/order_db_01?serverTimezone=UTC&useSSL=false
         username: demo
+      order_db_02:
         password: demo.1qaz
-        connectionTimeoutMilliseconds: 30000
-        idleTimeoutMilliseconds: 60000
-        maxLifetimeMilliseconds: 1800000
-        maxPoolSize: 50
-        minPoolSize: 1
-      demo_ds_2:
         type: com.zaxxer.hikari.HikariDataSource
-        driver-class-name: com.mysql.jdbc.Driver
-        url: jdbc:mysql://mysql57:13306/demo_ds_2?serverTimezone=UTC&useSSL=false
+        url: jdbc:mysql://mysql57:13306/order_db_02?serverTimezone=UTC&useSSL=false
         username: demo
+      order_db_03:
         password: demo.1qaz
-        connectionTimeoutMilliseconds: 30000
-        idleTimeoutMilliseconds: 60000
-        maxLifetimeMilliseconds: 1800000
-        maxPoolSize: 50
-        minPoolSize: 1
+        type: com.zaxxer.hikari.HikariDataSource
+        url: jdbc:mysql://mysql57:13306/order_db_03?serverTimezone=UTC&useSSL=false
+        username: demo
 
     rules:
       sharding:
         tables:
           t_order:
-            actual-data-nodes: demo_ds_${0..1}.t_order_${0..1}
-            table-strategy:
+            actualDataNodes: order_db_0${1..3}.t_order
+            databaseStrategy:
               standard:
+                shardingAlgorithmName: t_order_database_inline
                 shardingColumn: order_id
-                shardingAlgorithmName: t_order_inline
-            key-generate-strategy:
+            keyGenerateStrategy:
               column: id
-              keyGeneratorName: snowflake
-          t_order_record:
-            actual-data-nodes: demo_ds_0.t_order_record_${1..2},demo_ds_1.t_order_record_${3..4}
-            database-strategy:
+              keyGeneratorName: t_order_snowflake
+            logicTable: t_order
+            tableStrategy:
               standard:
-                shardingColumn: order_id
-                shardingAlgorithmName: t_order_record_database_inline
-            table-strategy:
-              standard:
-                shardingColumn: order_id
-                shardingAlgorithmName: t_order_record_inline
-            key-generate-strategy:
-              column: id
-              keyGeneratorName: snowflake
-          t_order_item:
-            actual-data-nodes: demo_ds_0.t_order_item_${0..2}
-            database-strategy:
-              none:
-            table-strategy:
-              standard:
-                shardingColumn: order_id
-                shardingAlgorithmName: partition_mod
-            key-generate-strategy:
-              column: id
-              keyGeneratorName: snowflake
+                shardingAlgorithmName: t_order_table_inline
+                shardingColumn: user_id
+
 #        binding-tables:
 #          - t_order,t_order_item
-        default-database-strategy:
-          standard:
-            shardingColumn: user_id
-            shardingAlgorithmName: database_inline
+#        default-database-strategy:
+#          standard:
+#            shardingColumn: user_id
+#            shardingAlgorithmName: database_inline
 #        default-table-strategy:
 #          none:
         sharding-algorithms:
-          database_inline:
-            type: INLINE
+          t_order_database_inline:
             props:
-              algorithm-expression: demo_ds_${user_id % 2}
-          t_order_inline:
-            type: INLINE
+              algorithm-expression: order_db_0${order_id % 3 + 1}
+            type: inline
+          t_order_database_mod:
             props:
-              algorithm-expression: t_order_${order_id % 2}
-          t_order_record_inline:
-            type: INLINE
+              sharding-count: '3'
+            type: mod
+          t_order_table_inline:
             props:
-              algorithm-expression: t_order_record_${order_id % 4}
-          t_order_record_database_inline:
-            type: INLINE
-            props:
-              algorithm-expression:  demo_ds_${order_id % 2}
-          t_order_item_inline:
-            type: INLINE
-            props:
-              algorithm-expression: t_order_item_${order_id % 2}
-          partition_mod:
-            type: MOD
-            props:
-              sharding-count: 3
-
+              algorithm-expression: t_order
+            type: inline
         key-generators:
-          snowflake:
-            type: SNOWFLAKE
-
-        scaling-name: default_scaling
-        scaling:
-          default_scaling:
-            input:
-              worker-thread: 40
-              batch-size: 1000
-            output:
-              worker-thread: 40
-              batch-size: 1000
-            stream-channel:
-              type: MEMORY
-              props:
-                block-queue-size: 10000
-            completionDetector:
-              type: IDLE
-              props:
-                incremental-task-idle-seconds-threshold: 1800
-            dataConsistencyChecker:
-              type: DATA_MATCH
-              props:
-                chunk-size: 1000
+          t_order_snowflake:
+            type: snowflake
     props:
       sql-show: true
