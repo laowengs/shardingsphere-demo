@@ -18,6 +18,12 @@
 		<java.version>1.8</java.version>
 	</properties>
 
+	<modules>
+		<module>shardingsphere-core</module>
+		<module>shardingsphere-jdbc</module>
+		<module>shardingsphere-proxy</module>
+	</modules>
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
