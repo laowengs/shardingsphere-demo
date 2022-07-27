@@ -4,8 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 
-@SpringBootApplication
-@EntityScan(basePackages = "com.laowengs.shardingsphere.demo.* ")
+@SpringBootApplication(scanBasePackages = "com.laowengs.*")
+@EntityScan(basePackages = "com.laowengs.shardingsphere.core.entity")
 public class ShardingsphereJdbcApplication {
 
     public static void main(String[] args) {

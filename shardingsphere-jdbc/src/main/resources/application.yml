@@ -45,7 +45,6 @@ spring:
         type: com.zaxxer.hikari.HikariDataSource
         url: jdbc:mysql://mysql57:13306/order_db_03?serverTimezone=UTC&useSSL=false
         username: demo
-
     rules:
       sharding:
         tables:
