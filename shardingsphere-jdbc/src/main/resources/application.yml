@@ -28,7 +28,7 @@ spring:
       order_db_00:
         password: demo.1qaz
         type: com.zaxxer.hikari.HikariDataSource
-        url: jdbc:mysql://mysql57:13306/order_db_01?serverTimezone=UTC&useSSL=false
+        url: jdbc:mysql://mysql57:13306/order_db_00?serverTimezone=UTC&useSSL=false
         username: demo
       order_db_01:
         password: demo.1qaz
@@ -58,13 +58,61 @@ spring:
               column: id
               keyGeneratorName: t_order_snowflake
             logicTable: t_order
+          t_order_item:
+            actualDataNodes: order_db_0${0..3}.t_order_item
+            databaseStrategy:
+              standard:
+                shardingAlgorithmName: t_order_database_mod
+                shardingColumn: order_id
+            keyGenerateStrategy:
+              column: id
+              keyGeneratorName: t_order_item_snowflake
+            logicTable: t_order_item
+          t_order_detail:
+            actualDataNodes: order_db_0${0..3}.t_order_detail
+            databaseStrategy:
+              standard:
+                shardingAlgorithmName: t_order_detail_database_mod
+                shardingColumn: order_id
+            keyGenerateStrategy:
+              column: id
+              keyGeneratorName: t_order_detail_snowflake
+            logicTable: t_order_detail
+          t_order_inner:
+            actualDataNodes: order_db_00.t_order_inner_${0..3}
+            keyGenerateStrategy:
+              column: id
+              keyGeneratorName: t_order_inner_snowflake
+            logicTable: t_order_inner
             tableStrategy:
               standard:
-                shardingAlgorithmName: t_order_table_inline
-                shardingColumn: user_id
+                shardingAlgorithmName: t_order_database_mod
+                shardingColumn: order_id
+          t_order_item_inner:
+            actualDataNodes: order_db_00.t_order_item_inner_${0..3}
+            keyGenerateStrategy:
+              column: id
+              keyGeneratorName: t_order_item_inner_snowflake
+            logicTable: t_order_item_inner
+            tableStrategy:
+              standard:
+                shardingAlgorithmName: t_order_database_mod
+                shardingColumn: order_id
+          t_order_detail_inner:
+            actualDataNodes: order_db_00.t_order_detail_inner_${0..3}
+            keyGenerateStrategy:
+              column: id
+              keyGeneratorName: t_order_detail_inner_snowflake
+            logicTable: t_order_detail_inner
+            tableStrategy:
+              standard:
+                shardingAlgorithmName: t_order_database_mod
+                shardingColumn: order_id
 
-#        binding-tables:
-#          - t_order,t_order_item
+        binding-tables:
+          - t_order,t_order_item
+        broadcastTables:
+          - t_order_type
 #        default-database-strategy:
 #          standard:
 #            shardingColumn: user_id
@@ -72,20 +120,26 @@ spring:
 #        default-table-strategy:
 #          none:
         sharding-algorithms:
-          t_order_database_inline:
-            props:
-              algorithm-expression: order_db_0${order_id % 3 + 1}
-            type: inline
           t_order_database_mod:
             props:
               sharding-count: '4'
             type: mod
-          t_order_table_inline:
+          t_order_detail_database_mod:
             props:
-              algorithm-expression: t_order
-            type: inline
+              sharding-count: '4'
+            type: mod
         key-generators:
           t_order_snowflake:
+            type: snowflake
+          t_order_item_snowflake:
+            type: snowflake
+          t_order_detail_snowflake:
+            type: snowflake
+          t_order_inner_snowflake:
+            type: snowflake
+          t_order_item_inner_snowflake:
+            type: snowflake
+          t_order_detail_inner_snowflake:
             type: snowflake
     props:
       sql-show: true

@@ -24,7 +24,7 @@ public class OrderRepositoryTest {
     void save() {
         ThreadLocalRandom random = ThreadLocalRandom.current();
 
-        IntStream.range(20, 41).forEach(i -> {
+        IntStream.range(20, 21).forEach(i -> {
             OrderEntity order = new OrderEntity();
             order.setOrderId(Math.abs(random.nextLong()));
             order.setUserId(Math.abs(random.nextLong()));
@@ -39,7 +39,7 @@ public class OrderRepositoryTest {
         ThreadLocalRandom random = ThreadLocalRandom.current();
 
         List<OrderEntity> orders = new ArrayList<>();
-        IntStream.range(20, 41).forEach(i -> {
+        IntStream.range(20, 21).forEach(i -> {
             OrderEntity order = new OrderEntity();
             order.setOrderId(Math.abs(random.nextLong()));
             order.setUserId(Math.abs(random.nextLong()));
@@ -51,6 +51,7 @@ public class OrderRepositoryTest {
         orderRepository.saveAll(orders);
 
     }
+
     @Test
     void selectAll() {
         List<OrderEntity> all = orderRepository.findAll();
@@ -58,6 +59,78 @@ public class OrderRepositoryTest {
     }
 
     @Test
-    void name() {
+    void limit() {
+        orderRepository.limit();
     }
+
+    @Test
+    void joinByOnePartition() {
+        orderRepository.joinByOnePartition();
+    }
+
+    @Test
+    void joinByManyPartition() {
+        orderRepository.joinByManyPartition();
+    }
+
+    @Test
+    void joinByNoBindingTable() {
+        orderRepository.joinByNoBindingTable();
+    }
+
+    @Test
+    void joinByBindingTable() {
+        orderRepository.joinByBindingTable();
+    }
+
+    @Test
+    void subByManyPartition() {
+        orderRepository.subByManyPartition();
+    }
+
+    @Test
+    void subByOnePartition() {
+        orderRepository.subByOnePartition();
+    }
+
+    @Test
+    void unionByOnePartition() {
+        orderRepository.unionByOnePartition();
+    }
+
+    @Test
+    void unionByManyPartition() {
+        orderRepository.unionByManyPartition();
+    }
+
+    @Test
+    void groupByCountUsePartitionKey() {
+        orderRepository.groupByCountUsePartitionKey();
+    }
+
+    @Test
+    void groupByAvgUsePartitionKey() {
+        orderRepository.groupByAvgUsePartitionKey();
+    }
+
+    @Test
+    void groupByCountNoPartitionKey() {
+        orderRepository.groupByCountNoPartitionKey();
+    }
+
+    @Test
+    void groupByAvgNoPartitionKey() {
+        orderRepository.groupByAvgNoPartitionKey();
+    }
+
+    @Test
+    void groupByCountPartitionKey() {
+        orderRepository.groupByCountPartitionKey();
+    }
+
+    @Test
+    void groupByAvgPartitionKey() {
+        orderRepository.groupByAvgPartitionKey();
+    }
+
 }
