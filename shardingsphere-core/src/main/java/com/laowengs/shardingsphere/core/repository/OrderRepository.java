@@ -20,16 +20,16 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
     @Query(value = "select * from t_order  order by id limit 10,5;", nativeQuery = true)
     List<Object> limit();
 
-    @Query(value = "SELECT * FROM t_order o JOIN t_order_item i ON o.order_id=i.order_id WHERE o.order_id in (1,5)", nativeQuery = true)
+    @Query(value = "SELECT  o.id id1,i.id id2 FROM t_order o JOIN t_order_item i ON o.order_id=i.order_id WHERE o.order_id in (1,5)", nativeQuery = true)
     List<Object> joinByOnePartition();
 
-    @Query(value = "SELECT * FROM t_order o JOIN t_order_item i ON o.order_id=i.order_id WHERE o.order_id in (1,2);", nativeQuery = true)
+    @Query(value = "SELECT  o.id id1,i.id id2 FROM t_order o JOIN t_order_item i ON o.order_id=i.order_id WHERE o.order_id in (1,2);", nativeQuery = true)
     List<Object> joinByManyPartition();
 
-    @Query(value = "SELECT * FROM t_order_inner o JOIN t_order_detail_inner i ON o.order_id=i.order_id WHERE o.order_id in (1,2);", nativeQuery = true)
+    @Query(value = "SELECT o.id id1,i.id id2 FROM t_order_inner o JOIN t_order_detail_inner i ON o.order_id=i.order_id WHERE o.order_id in (1,2);", nativeQuery = true)
     List<Object> joinByNoBindingTable();
 
-    @Query(value = " SELECT * FROM t_order_inner o JOIN t_order_item_inner i ON o.order_id=i.order_id WHERE o.order_id in (1,2);", nativeQuery = true)
+    @Query(value = " SELECT  o.id id1,i.id id2 FROM t_order_inner o JOIN t_order_item_inner i ON o.order_id=i.order_id WHERE o.order_id in (1,2);", nativeQuery = true)
     List<Object> joinByBindingTable();
 
     @Query(value = " select * from t_order where order_id in (select order_id from t_order_item where order_id in (1,2));", nativeQuery = true)
@@ -38,9 +38,7 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
     @Query(value = " select * from t_order where order_id in (select order_id from t_order_item where order_id in (1,5));", nativeQuery = true)
     List<Object> subByOnePartition();
 
-    @Query(value = " select * from t_order where order_id = 1\n" +
-            "UNION\n" +
-            "select * from t_order where order_id = 5;", nativeQuery = true)
+    @Query(value = " select * from t_order where order_id = 1 UNION select * from t_order where order_id = 5;", nativeQuery = true)
     List<Object> unionByOnePartition();
 
 
